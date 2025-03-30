@@ -1,7 +1,6 @@
 import os
 from collections import Counter
 from datetime import datetime
-from typing import Optional, Tuple
 
 import pandas as pd
 import sqlalchemy
@@ -46,7 +45,7 @@ class Summariser:
     def calculate_summary(
         self,
         product_name: str,
-        year_month_day: Tuple[Optional[int], Optional[int], Optional[int]],
+        year_month_day: tuple[int | None, int | None, int | None],
         product_refresh_time: datetime,
     ) -> TimePeriodOverview:
         """

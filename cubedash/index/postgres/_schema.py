@@ -1,6 +1,5 @@
 import warnings
 from textwrap import dedent
-from typing import Set
 
 from datacube.drivers.postgres._schema import DATASET as ODC_DATASET
 from geoalchemy2 import Geometry
@@ -358,7 +357,7 @@ def create_schema(conn: Connection, epsg_code: int):
     )
 
 
-def update_schema(conn: Connection) -> Set[PleaseRefresh]:
+def update_schema(conn: Connection) -> set[PleaseRefresh]:
     """
     Update the schema if needed.
 

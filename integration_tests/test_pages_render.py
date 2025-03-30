@@ -1,5 +1,4 @@
 from textwrap import indent
-from typing import List
 
 import pytest
 from datacube import Datacube
@@ -27,7 +26,7 @@ DATASETS = [
 pytestmark = pytest.mark.usefixtures("auto_odc_db")
 
 
-def assert_all_urls_render(all_urls: List[str], client: FlaskClient):
+def assert_all_urls_render(all_urls: list[str], client: FlaskClient):
     """Assert all given URLs return an OK HTTP response
 
     These can be used to test that the application works when

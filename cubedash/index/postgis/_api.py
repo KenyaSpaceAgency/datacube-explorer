@@ -1,5 +1,5 @@
+from collections.abc import Generator, Iterable
 from datetime import date, datetime, timedelta
-from typing import Generator, Iterable
 from uuid import UUID
 
 import shapely.ops

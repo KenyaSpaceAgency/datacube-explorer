@@ -57,11 +57,11 @@ import collections
 import multiprocessing
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import timedelta
 from functools import partial
 from textwrap import dedent
-from typing import List, Optional, Sequence, Tuple
 
 import click
 import structlog
@@ -100,8 +100,8 @@ class GenerateSettings:
 
 # pylint: disable=broad-except
 def generate_report(
-    item: Tuple[str, GenerateSettings, str],
-) -> Tuple[str, GenerateResult, Optional[TimePeriodOverview]]:
+    item: tuple[str, GenerateSettings, str],
+) -> tuple[str, GenerateResult, TimePeriodOverview | None]:
     product_name, settings, grouping_time_zone = item
     log = _LOG.bind(product=product_name)
 
@@ -158,7 +158,7 @@ def run_generation(
     products: Sequence[Product],
     grouping_time_zone=DEFAULT_TIMEZONE,
     workers=3,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     user_message(
         f"Updating {len(products)} products for "
         f"{style(str(settings.env_name), bold=True)}",
@@ -222,7 +222,7 @@ def run_generation(
     return creation_count, failure_count
 
 
-def _load_products(store: SummaryStore, product_names) -> List[Product]:
+def _load_products(store: SummaryStore, product_names) -> list[Product]:
     for product_name in product_names:
         try:
             yield store.get_product(product_name)
@@ -433,7 +433,7 @@ def cli(
     generate_all_products: bool,
     jobs: int,
     timezone: str,
-    product_names: List[str],
+    product_names: list[str],
     event_log_file: str,
     refresh_stats: bool,
     force_concurrently: bool,
@@ -444,7 +444,7 @@ def cli(
     epsg_code: int,
     recreate_dataset_extents: bool,
     reset_incremental_position: bool,
-    minimum_scan_window: Optional[timedelta],
+    minimum_scan_window: timedelta | None,
 ):
     init_logging(
         open(event_log_file, "ab") if event_log_file else None, verbosity=verbose
@@ -505,7 +505,7 @@ _TIME_PERIOD_FORMAT = re.compile(
 )
 
 
-def parse_timedelta(value: str) -> Optional[timedelta]:
+def parse_timedelta(value: str) -> timedelta | None:
     """
     Parse a string such as "30h40m" into a timedelta.
 

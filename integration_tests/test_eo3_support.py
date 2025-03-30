@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Dict
 from uuid import UUID
 
 import pytest
@@ -220,7 +219,7 @@ def test_undo_eo3_compatibility_del_handling():
     assert _utils.undo_eo3_compatibility(doc) is None
 
 
-def with_parsed_datetimes(v: Dict, name=""):
+def with_parsed_datetimes(v: dict, name=""):
     """
     All date fields in eo3 metadata have names ending in 'datetime'. Return a doc
     with all of these fields parsed as actual dates.

@@ -5,10 +5,10 @@ Tests that hit the stac api
 import json
 import urllib.parse
 from collections import Counter, defaultdict
+from collections.abc import Generator, Iterable
 from functools import lru_cache
 from pathlib import Path
 from pprint import pformat
-from typing import Dict, Generator, Iterable, List, Optional, Union
 from urllib.parse import urlsplit
 from urllib.request import urlopen
 
@@ -182,9 +182,7 @@ def load_validator(schema_location: Path) -> jsonschema.Draft7Validator:
     return load_schema_doc(schema, location=schema_location)
 
 
-def load_schema_doc(
-    schema: Dict, location: Union[str, Path]
-) -> jsonschema.Draft7Validator:
+def load_schema_doc(schema: dict, location: str | Path) -> jsonschema.Draft7Validator:
     try:
         jsonschema.Draft7Validator.check_schema(schema)
     except SchemaError as e:
@@ -224,7 +222,7 @@ def get_extension(url: str) -> jsonschema.Draft7Validator:
     return load_schema_doc(_web_reference(url), location=url)
 
 
-def get_collection(client: FlaskClient, url: str, validate=True) -> Dict:
+def get_collection(client: FlaskClient, url: str, validate=True) -> dict:
     """
     Get a URL, expecting a valid stac collection document to be there"""
     with DebugContext(f"Requested {url!r}"):
@@ -234,7 +232,7 @@ def get_collection(client: FlaskClient, url: str, validate=True) -> Dict:
     return data
 
 
-def get_items(client: FlaskClient, url: str) -> Dict:
+def get_items(client: FlaskClient, url: str) -> dict:
     """
     Get a URL, expecting a valid stac item collection document to be there"""
     with DebugContext(f"Requested {url!r}"):
@@ -243,7 +241,7 @@ def get_items(client: FlaskClient, url: str) -> Dict:
     return data
 
 
-def get_item(client: FlaskClient, url: str) -> Dict:
+def get_item(client: FlaskClient, url: str) -> dict:
     """
     Get a URL, expecting a single valid Stac Item to be there
     """
@@ -253,7 +251,7 @@ def get_item(client: FlaskClient, url: str) -> Dict:
     return data
 
 
-def _get_next_href(geojson: Dict) -> Optional[str]:
+def _get_next_href(geojson: dict) -> str | None:
     hrefs = [link["href"] for link in geojson.get("links", []) if link["rel"] == "next"]
     if not hrefs:
         return None
@@ -265,7 +263,7 @@ def _get_next_href(geojson: Dict) -> Optional[str]:
 
 def _iter_items_across_pages(
     client: FlaskClient, url: str
-) -> Generator[Dict, None, None]:
+) -> Generator[dict, None, None]:
     """
     Keep loading "next" pages and yield every Stac Item in order
     """
@@ -279,20 +277,20 @@ def _iter_items_across_pages(
 # Assertions and validations
 
 
-def assert_stac_extensions(doc: Dict):
+def assert_stac_extensions(doc: dict):
     stac_extensions = doc.get("stac_extensions", ())
     for extension_name in stac_extensions:
         get_extension(extension_name).validate(doc)
 
 
-def assert_item_collection(collection: Dict):
+def assert_item_collection(collection: dict):
     assert "features" in collection, "No features in collection"
     _ITEM_COLLECTION_SCHEMA.validate(collection)
     assert_stac_extensions(collection)
     validate_items(collection["features"])
 
 
-def assert_collection(collection: Dict):
+def assert_collection(collection: dict):
     _COLLECTION_SCHEMA.validate(collection)
     assert "features" not in collection
     assert_stac_extensions(collection)
@@ -305,7 +303,7 @@ def assert_collection(collection: Dict):
     assert "items" in rels, "Collection has no link to its items"
 
 
-def validate_item(item: Dict):
+def validate_item(item: dict):
     _ITEM_SCHEMA.validate(item)
 
     # Should be a valid polygon
@@ -326,7 +324,7 @@ def validate_item(item: Dict):
 
 
 def validate_items(
-    items: Iterable[Dict], expect_ordered=True, expect_count: Union[int, dict] = None
+    items: Iterable[dict], expect_ordered=True, expect_count: int | dict = None
 ):
     """
     Check that a series of stac Items:
@@ -986,7 +984,7 @@ def test_next_link(stac_client: FlaskClient):
 
 @pytest.mark.parametrize("env_name", ("default",), indirect=True)
 def test_stac_search_by_ids(stac_client: FlaskClient):
-    def geojson_feature_ids(d: Dict) -> List[str]:
+    def geojson_feature_ids(d: dict) -> list[str]:
         return sorted(d.get("id") for d in geojson.get("features", {}))
 
     # Can filter to an empty list. Nothing returned.

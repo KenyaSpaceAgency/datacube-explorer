@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
+from collections.abc import Generator, Iterable
 from datetime import datetime, timedelta
-from typing import Generator, Iterable
 from uuid import UUID
 
 from datacube.index import Index
