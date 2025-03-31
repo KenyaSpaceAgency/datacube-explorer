@@ -2,7 +2,6 @@ import operator
 import time
 from collections import Counter
 from datetime import date, datetime
-from typing import List
 
 import pytest
 from datacube.model import Range
@@ -114,7 +113,7 @@ def test_add_no_periods(summary_store: SummaryStore):
 
 def test_month_iteration():
     def assert_month_iteration(
-        start: datetime, end: datetime, expected_months: List[date]
+        start: datetime, end: datetime, expected_months: list[date]
     ):
         __tracebackhide__ = operator.methodcaller("errisinstance", AssertionError)
 

@@ -1,7 +1,5 @@
+from collections.abc import Generator
 from datetime import datetime, timedelta
-from typing import (
-    Generator,
-)
 from uuid import UUID
 
 import shapely.ops

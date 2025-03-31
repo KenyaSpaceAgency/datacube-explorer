@@ -1,9 +1,7 @@
-import socket
 import sys
 import time
 import urllib.request
 from textwrap import indent
-from typing import List, Tuple
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin
 
@@ -142,7 +140,7 @@ def cli(
     Returns error count.
     """
     max_failure_line_count = sys.maxsize if verbose else 5
-    response_times: List[Tuple[float, str]] = []
+    response_times: list[tuple[float, str]] = []
     failures = []
     consecutive_failures = 0
 
@@ -167,7 +165,7 @@ def cli(
             consecutive_failures = 0
             response_times.append((finished_in, url))
             time.sleep(throttle_seconds)
-        except socket.timeout:
+        except TimeoutError:
             secho(f"timeout (> {timeout_seconds}s)", fg="magenta", err=True)
             handle_failure()
         except HTTPError as e:

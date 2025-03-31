@@ -4,6 +4,7 @@ Common global filters for templates.
 
 import calendar
 import logging
+from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Mapping
 from urllib.parse import quote_plus

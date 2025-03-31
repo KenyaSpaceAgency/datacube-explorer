@@ -1,8 +1,8 @@
 import json
 import os
 import time
+from collections import Counter
 from pathlib import Path
-from typing import Counter, Dict, List, Optional, Tuple
 
 import flask
 import sentry_sdk
@@ -182,15 +182,15 @@ _LOG = structlog.get_logger()
 @cache.memoize(timeout=60)
 def get_time_summary(
     product_name: str,
-    year: Optional[int] = None,
-    month: Optional[int] = None,
-    day: Optional[int] = None,
-) -> Optional[TimePeriodOverview]:
+    year: int | None = None,
+    month: int | None = None,
+    day: int | None = None,
+) -> TimePeriodOverview | None:
     return STORE.get(product_name, year, month, day)
 
 
 @cache.memoize(timeout=60)
-def get_time_summary_all_products() -> Dict[Tuple[str, int, int], int]:
+def get_time_summary_all_products() -> dict[tuple[str, int, int], int]:
     return STORE.get_all_dataset_counts()
 
 
@@ -198,11 +198,11 @@ def get_product_summary(product_name: str) -> ProductSummary:
     return STORE.get_product_summary(product_name)
 
 
-ProductWithSummary = Tuple[Product, Optional[ProductSummary]]
+ProductWithSummary = tuple[Product, ProductSummary | None]
 
 
 @cache.memoize(timeout=120)
-def get_products() -> List[ProductWithSummary]:
+def get_products() -> list[ProductWithSummary]:
     """
     The list of all products that we have generated reports for.
     """
@@ -218,7 +218,7 @@ def get_products() -> List[ProductWithSummary]:
 
 
 @cache.memoize(timeout=120)
-def get_products_with_summaries() -> List[ProductWithSummary]:
+def get_products_with_summaries() -> list[ProductWithSummary]:
     """The list of products that we have generated summaries for."""
     return [
         (product, summary) for product, summary in get_products() if summary is not None
@@ -228,10 +228,10 @@ def get_products_with_summaries() -> List[ProductWithSummary]:
 @cache.memoize(timeout=60)
 def get_footprint_geojson(
     product_name: str,
-    year: Optional[int] = None,
-    month: Optional[int] = None,
-    day: Optional[int] = None,
-) -> Optional[Dict]:
+    year: int | None = None,
+    month: int | None = None,
+    day: int | None = None,
+) -> dict | None:
     period = get_time_summary(product_name, year, month, day)
     if period is None:
         return None
@@ -254,10 +254,10 @@ def get_footprint_geojson(
 @cache.memoize(timeout=60)
 def get_regions_geojson(
     product_name: str,
-    year: Optional[int] = None,
-    month: Optional[int] = None,
-    day: Optional[int] = None,
-) -> Optional[Dict]:
+    year: int | None = None,
+    month: int | None = None,
+    day: int | None = None,
+) -> dict | None:
     product = STORE.get_product(product_name)
 
     region_info = STORE.get_product_region_info(product_name)
@@ -289,7 +289,7 @@ def get_regions_geojson(
     return regions
 
 
-def _get_footprint(period: TimePeriodOverview) -> Optional[MultiPolygon]:
+def _get_footprint(period: TimePeriodOverview) -> MultiPolygon | None:
     if not period or not period.dataset_count:
         return None
 
@@ -309,7 +309,7 @@ def _get_footprint(period: TimePeriodOverview) -> Optional[MultiPolygon]:
 
 def _get_regions_geojson(
     region_counts: Counter[str], region_info: RegionInfo
-) -> Optional[Dict]:
+) -> dict | None:
     if not region_info:
         # Regions are unsupported for product
         return None

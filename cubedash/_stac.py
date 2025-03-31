@@ -1,10 +1,11 @@
 import json
 import logging
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from datetime import time as dt_time
 from functools import partial
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Union
 
 import flask
 import pystac
@@ -92,7 +93,7 @@ def utc(d: datetime):
     return d.astimezone(tz.tzutc())
 
 
-def _parse_time_range(time: str) -> Optional[Tuple[datetime, datetime]]:
+def _parse_time_range(time: str) -> tuple[datetime, datetime] | None:
     """
     >>> _parse_time_range('1986-04-16T01:12:16/2097-05-10T00:24:21')
     (datetime.datetime(1986, 4, 16, 1, 12, 16), datetime.datetime(2097, 5, 10, 0, 24, 21))
@@ -134,7 +135,7 @@ def _parse_time_range(time: str) -> Optional[Tuple[datetime, datetime]]:
             return t, t + timedelta(seconds=1)
 
 
-def _unparse_time_range(time: Tuple[datetime, datetime]) -> str:
+def _unparse_time_range(time: tuple[datetime, datetime]) -> str:
     """
     >>> _unparse_time_range((
     ...     datetime(1986, 4, 16, 1, 12, 16),
@@ -161,7 +162,7 @@ def url_for(*args, **kwargs):
 # Conversions
 
 
-def _band_to_measurement(band: Dict, dataset_location: str) -> MeasurementDoc:
+def _band_to_measurement(band: dict, dataset_location: str) -> MeasurementDoc:
     """Create EO3 measurement from an EO1 band dict"""
     return MeasurementDoc(
         path=band.get("path"),
@@ -274,7 +275,7 @@ def as_stac_item(dataset: DatasetItem) -> pystac.Item:
     return item
 
 
-def _accessories_from_eo1(metadata_doc: Dict) -> Dict[str, AccessoryDoc]:
+def _accessories_from_eo1(metadata_doc: dict) -> dict[str, AccessoryDoc]:
     """Create and EO3 accessories section from an EO1 document"""
     accessories = {}
 
@@ -369,9 +370,7 @@ def _remove_prefixes(arg: str):
     return arg
 
 
-def _array_arg(
-    arg: Union[str, List[Union[str, float]]], expect_type=str, expect_size=None
-) -> List:
+def _array_arg(arg: str | list[str | float], expect_type=str, expect_size=None) -> list:
     """
     Parse an argument that should be a simple list.
     """
@@ -419,7 +418,7 @@ def _geojson_arg(arg: dict) -> BaseGeometry:
         raise BadRequest("The 'intersects' argument must be valid GeoJSON geometry.")
 
 
-def _bool_argument(s: Union[str, bool]):
+def _bool_argument(s: str | bool):
     """
     Parse an argument that should be a bool
     """
@@ -430,7 +429,7 @@ def _bool_argument(s: Union[str, bool]):
     return s.strip().lower() in ("1", "true", "on", "yes")
 
 
-def _dict_arg(arg: Union[str, dict]):
+def _dict_arg(arg: str | dict):
     """
     Parse stac extension arguments as dicts
     """
@@ -439,7 +438,7 @@ def _dict_arg(arg: Union[str, dict]):
     return arg
 
 
-def _field_arg(arg: Union[str, list, dict]) -> dict[str, list[str]]:
+def _field_arg(arg: str | list | dict) -> dict[str, list[str]]:
     """
     Parse field argument into a dict
     """
@@ -461,7 +460,7 @@ def _field_arg(arg: Union[str, list, dict]) -> dict[str, list[str]]:
         return {"include": include, "exclude": exclude}
 
 
-def _sort_arg(arg: Union[str, list]) -> list[dict]:
+def _sort_arg(arg: str | list) -> list[dict]:
     """
     Parse sortby argument into a list of dicts
     """
@@ -487,7 +486,7 @@ def _sort_arg(arg: Union[str, list]) -> list[dict]:
     return arg
 
 
-def _filter_arg(arg: Union[str, dict]) -> str:
+def _filter_arg(arg: str | dict) -> str:
     # convert dict to arg to more easily remove prefixes
     if isinstance(arg, dict):
         arg = json.dumps(arg)
@@ -514,7 +513,7 @@ def _validate_filter(filter_lang: str, cql: str):
 def _handle_search_request(
     method: str,
     request_args: TypeConversionDict,
-    product_names: List[str],
+    product_names: list[str],
     include_total_count: bool = True,
 ) -> ItemCollection:
     bbox = request_args.get(
@@ -666,7 +665,7 @@ def _get_property(prop: str, item: ItemLike, no_default=False):
     return dicttoolz.get_in(prop.split("."), item, no_default=no_default)
 
 
-def _handle_fields_extension(items: List[ItemLike], fields: dict) -> List[ItemLike]:
+def _handle_fields_extension(items: list[ItemLike], fields: dict) -> list[ItemLike]:
     """
     Implementation of fields extension (https://github.com/stac-api-extensions/fields/blob/main/README.md)
     This implementation differs slightly from the documented semantics in that the default fields will always
@@ -747,19 +746,19 @@ def search_stac_items(
     get_next_url: Callable[[int], str],
     limit: int = 0,
     offset: int = 0,
-    dataset_ids: Optional[str] = None,
-    product_names: Optional[List[str]] = None,
-    bbox: Optional[Tuple[float, float, float, float]] = None,
-    intersects: Optional[BaseGeometry] = None,
-    time: Optional[Tuple[datetime, datetime]] = None,
+    dataset_ids: str | None = None,
+    product_names: list[str] | None = None,
+    bbox: tuple[float, float, float, float] | None = None,
+    intersects: BaseGeometry | None = None,
+    time: tuple[datetime, datetime] | None = None,
     full_information: bool = False,
     order: ItemSort = ItemSort.DEFAULT_SORT,
     include_total_count: bool = False,
     use_post_request: bool = False,
-    fields: Optional[dict] = None,
-    sortby: Optional[List[dict]] = None,
-    filter_lang: Optional[str] = None,
-    filter_cql: Optional[str | dict] = None,
+    fields: dict | None = None,
+    sortby: list[dict] | None = None,
+    filter_lang: str | None = None,
+    filter_cql: str | dict | None = None,
 ) -> ItemCollection:
     """
     Perform a search, returning a FeatureCollection of stac Item results.
@@ -932,7 +931,7 @@ def _stac_collection(collection: str) -> Collection:
 
 
 def _stac_response(
-    doc: Union[STACObject, ItemCollection], content_type="application/json"
+    doc: STACObject | ItemCollection, content_type="application/json"
 ) -> flask.Response:
     """Return a stac document as the flask response"""
     if isinstance(doc, STACObject):
@@ -943,7 +942,7 @@ def _stac_response(
     )
 
 
-def _geojson_stac_response(doc: Union[STACObject, ItemCollection]) -> flask.Response:
+def _geojson_stac_response(doc: STACObject | ItemCollection) -> flask.Response:
     """Return a stac item"""
     return _stac_response(doc, content_type="application/geo+json")
 
@@ -951,7 +950,7 @@ def _geojson_stac_response(doc: Union[STACObject, ItemCollection]) -> flask.Resp
 # Root setup
 
 
-def stac_endpoint_information() -> Dict:
+def stac_endpoint_information() -> dict:
     config = current_app.config
     o = dict(
         id=config.get("STAC_ENDPOINT_ID", "odc-explorer"),
@@ -1259,7 +1258,7 @@ def collection_month(collection: str, year: int, month: int):
     returned = items[:limit]
     there_are_more = len(items) == limit + 1
 
-    optional_links: List[Link] = []
+    optional_links: list[Link] = []
     if there_are_more:
         next_url = url_for(
             ".collection_month",

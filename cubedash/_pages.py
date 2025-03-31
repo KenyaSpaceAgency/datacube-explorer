@@ -1,7 +1,7 @@
 import decimal
 import re
 from datetime import datetime, timedelta, timezone
-from typing import List, Tuple
+
 
 import datacube
 import dateutil.parser
@@ -428,7 +428,7 @@ def timeline_page(product_name: str):
 
 def _load_product(
     product_name, year, month, day
-) -> Tuple[
+) -> tuple[
     Product,
     ProductSummary,
     TimePeriodOverview,
@@ -502,7 +502,7 @@ HREF = str
 SHOULD_LINK = bool
 
 
-def _get_breadcrumbs(url: str, script_root: str) -> List[Tuple[HREF, str, SHOULD_LINK]]:
+def _get_breadcrumbs(url: str, script_root: str) -> list[tuple[HREF, str, SHOULD_LINK]]:
     """
     >>> _get_breadcrumbs('/products/great_product', '/')
     [('/products', 'products', True), ('/products/great_product', 'great_product', False)]
@@ -538,7 +538,7 @@ def _get_breadcrumbs(url: str, script_root: str) -> List[Tuple[HREF, str, SHOULD
     return breadcrumb
 
 
-def _get_grouped_products() -> List[Tuple[str, List[ProductWithSummary]]]:
+def _get_grouped_products() -> list[tuple[str, list[ProductWithSummary]]]:
     """
     We group products using the configured grouping field (default "product_type").
 
@@ -589,9 +589,9 @@ def _get_grouped_products() -> List[Tuple[str, List[ProductWithSummary]]]:
 
 
 def _partition_default(
-    grouped_product_summarise: List[Tuple[str, List[ProductWithSummary]]],
+    grouped_product_summarise: list[tuple[str, list[ProductWithSummary]]],
     remainder_group_size=5,
-) -> List[Tuple[str, List[ProductWithSummary]]]:
+) -> list[tuple[str, list[ProductWithSummary]]]:
     """
     For default items and place them at the end in batches.
     """
@@ -616,7 +616,7 @@ def _partition_default(
     return grouped_product_summarise
 
 
-def chunks(ls: List, n: int):
+def chunks(ls: list, n: int):
     """
     Split list into chunks of max size n.
 

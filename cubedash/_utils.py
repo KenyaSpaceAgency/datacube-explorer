@@ -9,9 +9,9 @@ import io
 import itertools
 import re
 from collections import defaultdict
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timedelta, timezone
 from io import StringIO
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 import eodatasets3.serialise
@@ -63,7 +63,7 @@ MATCH_CUTOFF = 0.38
 _LOG = structlog.get_logger()
 
 
-def infer_crs(crs_str: str) -> Optional[str]:
+def infer_crs(crs_str: str) -> str | None:
     plausible_list = [
         code
         for code in DEFAULT_CRS_INFERENCES
@@ -139,7 +139,7 @@ def datetime_expression(md_type: MetadataType):
     return center_time
 
 
-def get_dataset_file_offsets(dataset: Dataset) -> Dict[str, str]:
+def get_dataset_file_offsets(dataset: Dataset) -> dict[str, str]:
     """
     Get (usually relative) paths for all known files of a dataset.
 
@@ -172,7 +172,7 @@ def as_resolved_remote_url(location: str, offset: str) -> str:
 
 def as_external_url(
     url: str, s3_region: str = None, is_base: bool = False
-) -> Optional[str]:
+) -> str | None:
     """
     Convert a URL to an externally-visible one.
 
@@ -237,7 +237,7 @@ def group_field_names(request: dict) -> dict:
     return dict(out)
 
 
-def get_sorted_product_summaries(product_summaries: dict, key: str) -> List:
+def get_sorted_product_summaries(product_summaries: dict, key: str) -> list:
     return sorted(
         (
             (name or "", list(items))
@@ -285,7 +285,7 @@ def dataset_label(dataset: Dataset) -> str:
     return str(dataset.id)
 
 
-def _get_reasonable_file_label(uri: str) -> Optional[str]:
+def _get_reasonable_file_label(uri: str) -> str | None:
     """
     Get a label for the dataset from a URI.... if we can.
 
@@ -324,7 +324,7 @@ def _get_reasonable_file_label(uri: str) -> Optional[str]:
     return None
 
 
-def product_license(product: Product) -> Optional[str]:
+def product_license(product: Product) -> str | None:
     """
     What is the license to display for this product?
 
@@ -356,11 +356,11 @@ def _next_month(date: datetime):
 
 
 def as_time_range(
-    year: Optional[int] = None,
-    month: Optional[int] = None,
-    day: Optional[int] = None,
+    year: int | None = None,
+    month: int | None = None,
+    day: int | None = None,
     tzinfo=None,
-) -> Optional[Range]:
+) -> Range | None:
     """
     >>> as_time_range(2018)
     Range(begin=datetime.datetime(2018, 1, 1, 0, 0), end=datetime.datetime(2019, 1, 1, 0, 0))
@@ -439,7 +439,7 @@ def now_utc() -> datetime:
     return default_utc(datetime.now(timezone.utc))
 
 
-def dataset_created(dataset: Dataset) -> Optional[datetime]:
+def dataset_created(dataset: Dataset) -> datetime | None:
     if "created" in dataset.metadata.fields:
         return dataset.metadata.created
 
@@ -648,8 +648,8 @@ def only_alphanumeric(s: str):
 def as_csv(
     *,
     filename_prefix: str,
-    headers: Tuple[str, ...],
-    rows: Iterable[Tuple[object, ...]],
+    headers: tuple[str, ...],
+    rows: Iterable[tuple[object, ...]],
 ):
     """Return a CSV Flask response."""
     out = io.StringIO()
@@ -704,7 +704,7 @@ def prepare_dataset_formatting(
 def prepare_document_formatting(
     metadata_doc: Mapping,
     doc_friendly_label: str = "",
-    include_source_url: Union[bool, str] = False,
+    include_source_url: bool | str = False,
 ):
     """
     Try to format a raw document for readability.
@@ -712,7 +712,7 @@ def prepare_document_formatting(
     This will change property order, add comments on the type & source url.
     """
 
-    def get_property_priority(ordered_properties: List, keyval):
+    def get_property_priority(ordered_properties: list, keyval):
         key, val = keyval
         if key not in ordered_properties:
             return 999
@@ -861,7 +861,7 @@ EODATASETS_LINEAGE_PROPERTY_ORDER = [
 ]
 
 
-def dataset_shape(ds: Dataset) -> Tuple[Optional[Polygon], bool]:
+def dataset_shape(ds: Dataset) -> tuple[Polygon | None, bool]:
     """
     Get a usable extent from the dataset (if possible), and return
     whether the original was valid.

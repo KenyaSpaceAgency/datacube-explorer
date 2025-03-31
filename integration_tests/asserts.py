@@ -1,10 +1,10 @@
 import json
 import re
+from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
 from pprint import pformat, pprint
 from textwrap import indent
-from typing import Dict, Iterable, Optional, Set, Tuple
 
 import jsonschema
 import pytest
@@ -45,7 +45,7 @@ def assert_shapes_mostly_equal(
     assert (s1 - s2).area < threshold, f"{s1} is not mostly equal to {s2}"
 
 
-def assert_matching_eo3(actual_doc: Dict, expected_doc: Dict):
+def assert_matching_eo3(actual_doc: dict, expected_doc: dict):
     """
     Assert an EO3 document matches an expected document,
 
@@ -73,7 +73,7 @@ def assert_matching_eo3(actual_doc: Dict, expected_doc: Dict):
     )
 
 
-def get_geojson(client: FlaskClient, url: str) -> Dict:
+def get_geojson(client: FlaskClient, url: str) -> dict:
     data = get_json(client, url)
     validate_document(
         data,
@@ -85,7 +85,7 @@ def get_geojson(client: FlaskClient, url: str) -> Dict:
 
 def get_text_response(
     client: FlaskClient, url: str, expect_status_code=200
-) -> Tuple[str, Response]:
+) -> tuple[str, Response]:
     response: Response = client.get(url, follow_redirects=True)
     assert response.status_code == expect_status_code, (
         f"Expected status {expect_status_code} not {response.status_code}."
@@ -94,7 +94,7 @@ def get_text_response(
     return response.data.decode("utf-8"), response
 
 
-def get_json(client: FlaskClient, url: str, expect_status_code=200) -> Dict:
+def get_json(client: FlaskClient, url: str, expect_status_code=200) -> dict:
     rv: Response = client.get(url, follow_redirects=True)
     try:
         assert rv.status_code == expect_status_code, (
@@ -156,9 +156,9 @@ def expect_values(
     newest_creation_time: datetime,
     timeline_period: str,
     timeline_count: int,
-    crses: Set[str],
-    size_bytes: Optional[int],
-    region_dataset_counts: Dict = None,
+    crses: set[str],
+    size_bytes: int | None,
+    region_dataset_counts: dict = None,
 ):
     __tracebackhide__ = True
 
@@ -311,7 +311,7 @@ def _add_context(e: AssertionError, context_message: str):
     e.args = tuple(args)
 
 
-def format_doc_diffs(left: Dict, right: Dict) -> Iterable[str]:
+def format_doc_diffs(left: dict, right: dict) -> Iterable[str]:
     """
     Get a human-readable list of differences in the given documents.
 
