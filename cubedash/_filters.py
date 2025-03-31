@@ -5,7 +5,8 @@ Common global filters for templates.
 import calendar
 import logging
 from collections.abc import Mapping
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Mapping
 from urllib.parse import quote_plus
 
 import flask
@@ -296,7 +297,7 @@ def timesince(dt, default="just now"):
     if dt is None:
         return "an unrecorded time ago"
 
-    now = datetime.utcnow().replace(tzinfo=tz.tzutc())
+    now = datetime.now(timezone.utc).replace(tzinfo=tz.tzutc())
     diff = now - utils.default_utc(dt)
 
     periods = (
