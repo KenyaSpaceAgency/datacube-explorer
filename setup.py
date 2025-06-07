@@ -73,7 +73,9 @@ setup(
     include_package_data=True,
     install_requires=[
         "cachetools",
-        "click",
+        # Tests fail with "ValueError: I/O operation on closed file" with Click
+        # 8.2.0 and later.
+        "click<8.2.0",
         "datacube[postgres]>=1.9.0",
         "eodatasets3>=1.9",
         "fiona>=1.10.0",
